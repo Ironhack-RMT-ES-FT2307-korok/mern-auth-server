@@ -101,8 +101,11 @@ router.post("/login", async (req, res, next) => {
 // GET "/api/auth/verify" => indicar al FE que el usuario está activo en llamadas futuras
 router.get("/verify", isAuthenticated, (req, res, next) => {
 
+  // ! de ahora en adelante, cada vez que usemos el middleware isAuthenticated ...
+  // ! ... vamos a tener acceso a algo llamado req.payload
+  console.log(req.payload)
 
-  res.json("si vemos este mensaje, el token es valido")
+  res.json(req.payload)
 
 })
 
