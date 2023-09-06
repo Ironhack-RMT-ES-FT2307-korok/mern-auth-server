@@ -97,13 +97,44 @@ router.post("/login", async (req, res, next) => {
 
 })
 
+const isTokenValid = (req, res, next) => {
+  if ( !req.headers || !req.headers.authorization) {
+    res.status(401).json("Token not provided")
+    return;
+  }
+
+  const tokenArr = req.headers.authorization.split(" ")
+  // const [ tokenType, token ] = tokenArr
+  const tokenType = tokenArr[0]
+  const token = tokenArr[1]
+
+  if (tokenType !== "Bearer") {
+    res.status(401).json("Token type not valid")
+    return;
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.TOKEN_SECRET)
+    console.log(payload)
+
+    req.payload = payload; // passes the payload to the next route
+    next()
+    
+  } catch (error) {
+    res.status(401).json("Token not valid or has expired")
+  }
+}
+
 
 // GET "/api/auth/verify" => indicar al FE que el usuario está activo en llamadas futuras
-router.get("/verify", isAuthenticated, (req, res, next) => {
+router.get("/verify", isTokenValid, (req, res, next) => {
 
   // ! de ahora en adelante, cada vez que usemos el middleware isAuthenticated ...
   // ! ... vamos a tener acceso a algo llamado req.payload
-  console.log(req.payload)
+  // const token = req.headers.authorization.split(" ")[1]
+  // console.log(token)
+  // const something = jwt.decode(token)
+  // console.log(something)
 
   res.json(req.payload)
 
